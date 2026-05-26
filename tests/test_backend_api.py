@@ -28,6 +28,28 @@ def test_health_endpoint(tmp_path: Path) -> None:
     }
 
 
+def test_dashboard_static_files_are_served(tmp_path: Path) -> None:
+    with make_client(tmp_path) as client:
+        response = client.get("/dashboard/")
+
+    assert response.status_code == 200
+    assert "Browser Agent" in response.text
+
+
+def test_cors_preflight_allows_dashboard_requests(tmp_path: Path) -> None:
+    with make_client(tmp_path) as client:
+        response = client.options(
+            "/runs",
+            headers={
+                "Origin": "null",
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "*"
+
+
 def test_create_and_get_run(tmp_path: Path) -> None:
     with make_client(tmp_path) as client:
         created = client.post(
@@ -90,4 +112,3 @@ def test_websocket_event_stub_connects(tmp_path: Path) -> None:
 
     assert message["type"] == "connection.ready"
     assert message["run_id"] == run_id
-

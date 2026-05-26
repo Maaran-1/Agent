@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Autonomous Browser Agent</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar" aria-label="Runs">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">A</span>
+          <div>
+            <h1>Browser Agent</h1>
+            <p>Operator Console</p>
+          </div>
+        </div>
+
+        <form id="run-form" class="run-form">
+          <label for="api-base">API</label>
+          <input id="api-base" name="api-base" type="url" value="http://127.0.0.1:8000">
+
+          <label for="task">Task</label>
+          <textarea id="task" name="task" rows="5" placeholder="Describe the browser task"></textarea>
+
+          <label for="model-profile">Model</label>
+          <select id="model-profile" name="model-profile">
+            <option value="gemma4">gemma4</option>
+            <option value="qwen2.5-coder">qwen2.5-coder</option>
+          </select>
+
+          <button type="submit">Create Run</button>
+        </form>
+
+        <div class="connection">
+          <span id="api-status" class="status-dot status-idle"></span>
+          <span id="api-status-label">API not checked</span>
+        </div>
+      </aside>
+
+      <section class="workspace" aria-label="Run details">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Current Run</p>
+            <h2 id="run-title">No run selected</h2>
+          </div>
+          <div class="toolbar">
+            <button id="refresh-run" type="button" disabled>Refresh</button>
+            <button id="cancel-run" type="button" disabled>Cancel</button>
+          </div>
+        </header>
+
+        <section class="status-grid" aria-label="Run summary">
+          <div class="metric">
+            <span>Status</span>
+            <strong id="run-status">-</strong>
+          </div>
+          <div class="metric">
+            <span>Model</span>
+            <strong id="run-model">-</strong>
+          </div>
+          <div class="metric">
+            <span>Events</span>
+            <strong id="event-count">0</strong>
+          </div>
+          <div class="metric">
+            <span>Stream</span>
+            <strong id="ws-status">Closed</strong>
+          </div>
+        </section>
+
+        <section class="panels">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Events</h3>
+              <span id="last-event">Waiting</span>
+            </div>
+            <ol id="events-list" class="event-list"></ol>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Artifacts</h3>
+              <span id="artifact-count">0</span>
+            </div>
+            <ul id="artifacts-list" class="artifact-list"></ul>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <template id="event-template">
+      <li>
+        <span class="event-type"></span>
+        <p class="event-message"></p>
+        <time class="event-time"></time>
+      </li>
+    </template>
+
+    <template id="artifact-template">
+      <li>
+        <strong class="artifact-kind"></strong>
+        <span class="artifact-path"></span>
+      </li>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

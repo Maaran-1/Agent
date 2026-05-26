@@ -1,8 +1,11 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.db_session import create_engine, create_session_factory, initialize_database
 from backend.dependencies import get_session, get_settings_from_app
@@ -37,6 +40,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             await app.state.engine.dispose()
 
     app = FastAPI(title=app_settings.app_name, version="0.1.0", lifespan=lifespan)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    frontend_dir = Path(__file__).resolve().parents[1] / "frontend"
+    if frontend_dir.exists():
+        app.mount("/dashboard", StaticFiles(directory=frontend_dir, html=True), name="dashboard")
 
     @app.get("/health", response_model=HealthResponse)
     async def health(settings: Settings = Depends(get_settings_from_app)) -> HealthResponse:
@@ -129,4 +142,3 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
 
 app = create_app()
-

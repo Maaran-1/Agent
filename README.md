@@ -86,6 +86,29 @@ The backend checkpoint adds:
 - initial WebSocket event stream stub
 - API contract tests with temporary SQLite storage
 
+## Phase 7 Dashboard
+
+The frontend checkpoint adds a static operator dashboard:
+
+- create a run
+- view run status
+- refresh events and artifacts
+- cancel a run
+- connect to the WebSocket event stream stub
+- talk to the FastAPI backend from a local file or static server
+
+Open the dashboard after the backend is running:
+
+```powershell
+uvicorn backend.app:app --reload
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/dashboard/
+```
+
 ## Local Setup
 
 ```powershell

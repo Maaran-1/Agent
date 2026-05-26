@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Browser Agent Smoke Page</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 40px;
+      }
+
+      main {
+        max-width: 640px;
+      }
+
+      label,
+      input,
+      button {
+        display: block;
+        margin: 10px 0;
+      }
+
+      #result {
+        background: #eef7f4;
+        border: 1px solid #9fd6ca;
+        padding: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Browser Agent Smoke Page</h1>
+      <label for="agent-input">Message</label>
+      <input id="agent-input" type="text" placeholder="Type message">
+      <button id="submit-button" type="button">Submit</button>
+      <p id="result">Waiting for input</p>
+    </main>
+    <script>
+      document.querySelector("#submit-button").addEventListener("click", () => {
+        const value = document.querySelector("#agent-input").value;
+        document.querySelector("#result").textContent = `Agent received: ${value}`;
+      });
+    </script>
+  </body>
+</html>

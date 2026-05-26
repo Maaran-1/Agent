@@ -150,6 +150,28 @@ The browser tool checkpoint adds:
 - default workflow registry with browser tools
 - tests with mocked browser controllers
 
+## Phase 11 Browser Workflow Smoke Tests
+
+The smoke-test checkpoint adds:
+
+- local browser smoke page
+- deterministic browser smoke planner
+- real Playwright workflow test
+- screenshot verification
+- pytest marker for intentional browser smoke runs
+
+Run the normal suite without browser smoke tests:
+
+```powershell
+pytest -m "not browser_smoke"
+```
+
+Run the real browser smoke test after `playwright install`:
+
+```powershell
+pytest -m browser_smoke
+```
+
 ## Local Setup
 
 ```powershell

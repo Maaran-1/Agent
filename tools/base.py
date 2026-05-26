@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -43,3 +44,13 @@ class ToolRegistry:
 
     def names(self) -> list[str]:
         return sorted(self._tools)
+
+    async def close_run(self, run_id: UUID) -> None:
+        seen: set[int] = set()
+        for tool in self._tools.values():
+            closer = getattr(tool, "close_run", None)
+            close_owner = getattr(tool, "provider", tool)
+            if closer is None or id(close_owner) in seen:
+                continue
+            seen.add(id(close_owner))
+            await closer(run_id)

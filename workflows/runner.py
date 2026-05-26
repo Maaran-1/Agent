@@ -8,6 +8,7 @@ from agents.reflection import ReflectionEngine
 from backend.events import EventType
 from configs.settings import Settings
 from tools.base import ToolContext, ToolRegistry, ToolResult
+from tools.browser import register_browser_tools
 from tools.echo import EchoTaskTool
 
 from .models import WorkflowRun
@@ -16,9 +17,11 @@ from .service import WorkflowService
 from .states import RunStatus
 
 
-def create_default_tool_registry() -> ToolRegistry:
+def create_default_tool_registry(settings: Settings | None = None) -> ToolRegistry:
     registry = ToolRegistry()
     registry.register(EchoTaskTool())
+    if settings is not None:
+        register_browser_tools(registry, settings)
     return registry
 
 
@@ -50,10 +53,11 @@ class AutonomousWorkflowRunner:
         self.planner = planner or (
             create_default_planner(settings) if settings is not None else DeterministicPlanner()
         )
-        self.tools = tools or create_default_tool_registry()
+        self.tools = tools or create_default_tool_registry(settings)
         self.reflection = reflection or ReflectionEngine()
 
     async def run_existing_run(self, run_id) -> None:
+        run = None
         async with self.session_factory() as session:
             repository = WorkflowRepository(session)
             service = WorkflowService(repository)
@@ -76,6 +80,9 @@ class AutonomousWorkflowRunner:
             except Exception as exc:  # pragma: no cover - defensive runtime boundary
                 await service.fail_run(run.id, f"Autonomous workflow failed: {exc}")
                 await session.commit()
+            finally:
+                if run is not None:
+                    await self.tools.close_run(run.id)
 
     async def _execute_run(self, run: WorkflowRun, service: WorkflowService) -> None:
         plan = await self.planner.plan(run.task)

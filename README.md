@@ -139,6 +139,17 @@ ABA_USE_OLLAMA_PLANNER=true
 ABA_DEFAULT_PLANNER_MODEL=gemma4
 ```
 
+## Phase 10 Browser Tool Integration
+
+The browser tool checkpoint adds:
+
+- browser-backed agent tools
+- per-run browser session reuse
+- browser session cleanup after workflow execution
+- planner prompt support for browser actions
+- default workflow registry with browser tools
+- tests with mocked browser controllers
+
 ## Local Setup
 
 ```powershell

@@ -10,6 +10,7 @@ from workflows.states import RunStatus, StepStatus
 class CreateRunRequest(BaseModel):
     task: str = Field(min_length=1)
     model_profile: str = "gemma4"
+    auto_start: bool = True
 
 
 class RunResponse(BaseModel):
@@ -60,4 +61,3 @@ class HealthResponse(BaseModel):
     status: str
     app_name: str
     environment: str
-

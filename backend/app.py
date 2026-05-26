@@ -3,7 +3,15 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import (
+    BackgroundTasks,
+    Depends,
+    FastAPI,
+    HTTPException,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -21,6 +29,7 @@ from backend.schemas import (
 )
 from configs.settings import Settings, get_settings
 from workflows.repository import WorkflowRepository
+from workflows.runner import AutonomousWorkflowRunner
 from workflows.service import WorkflowService
 
 
@@ -62,6 +71,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/runs", response_model=RunResponse, status_code=201)
     async def create_run(
         request: CreateRunRequest,
+        background_tasks: BackgroundTasks,
+        app_request: Request,
         session=Depends(get_session),
     ) -> RunResponse:
         service = WorkflowService(WorkflowRepository(session))
@@ -69,6 +80,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             task=request.task.strip(),
             model_profile=request.model_profile,
         )
+        await session.commit()
+        if request.auto_start:
+            runner = AutonomousWorkflowRunner(app_request.app.state.session_factory)
+            background_tasks.add_task(runner.run_existing_run, run.id)
         return RunResponse.model_validate(run, from_attributes=True)
 
     @app.get("/runs/{run_id}", response_model=RunResponse)

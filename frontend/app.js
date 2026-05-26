@@ -2,6 +2,7 @@ const state = {
   apiBase: "http://127.0.0.1:8000",
   currentRun: null,
   websocket: null,
+  refreshTimer: null,
 };
 
 const elements = {
@@ -69,6 +70,7 @@ async function createRun() {
     body: JSON.stringify({
       task,
       model_profile: elements.modelProfile.value,
+      auto_start: true,
     }),
   });
 
@@ -76,6 +78,7 @@ async function createRun() {
   renderRun(run);
   await refreshRunDetails(run.id);
   connectWebSocket(run.id);
+  startPolling(run.id);
 }
 
 async function loadRun(runId) {
@@ -83,6 +86,9 @@ async function loadRun(runId) {
   state.currentRun = run;
   renderRun(run);
   await refreshRunDetails(run.id);
+  if (isTerminal(run.status)) {
+    stopPolling();
+  }
 }
 
 async function refreshRunDetails(runId) {
@@ -149,6 +155,24 @@ function connectWebSocket(runId) {
   });
 }
 
+function startPolling(runId) {
+  stopPolling();
+  state.refreshTimer = window.setInterval(async () => {
+    try {
+      await loadRun(runId);
+    } catch (error) {
+      stopPolling();
+    }
+  }, 1500);
+}
+
+function stopPolling() {
+  if (state.refreshTimer) {
+    window.clearInterval(state.refreshTimer);
+    state.refreshTimer = null;
+  }
+}
+
 function closeWebSocket() {
   if (state.websocket) {
     state.websocket.close();
@@ -161,7 +185,11 @@ function renderRun(run) {
   elements.runStatus.textContent = run.status;
   elements.runModel.textContent = run.model_profile;
   elements.refreshRun.disabled = false;
-  elements.cancelRun.disabled = ["completed", "failed", "cancelled"].includes(run.status);
+  elements.cancelRun.disabled = isTerminal(run.status);
+}
+
+function isTerminal(status) {
+  return ["completed", "failed", "cancelled"].includes(status);
 }
 
 function renderEvents(events) {

@@ -109,6 +109,17 @@ Then open:
 http://127.0.0.1:8000/dashboard/
 ```
 
+## Phase 8 Autonomous Workflows
+
+The autonomous workflow checkpoint adds:
+
+- background execution for API-created runs
+- deterministic planner execution without Ollama dependency
+- durable workflow steps created from planned steps
+- tool execution through the registry
+- persisted action, observation, reflection, and completion events
+- dashboard-created runs start automatically by default
+
 ## Local Setup
 
 ```powershell

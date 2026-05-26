@@ -1,4 +1,5 @@
 from pathlib import Path
+from time import sleep
 
 from fastapi.testclient import TestClient
 
@@ -54,7 +55,11 @@ def test_create_and_get_run(tmp_path: Path) -> None:
     with make_client(tmp_path) as client:
         created = client.post(
             "/runs",
-            json={"task": "Open billing dashboard", "model_profile": "gemma4"},
+            json={
+                "task": "Open billing dashboard",
+                "model_profile": "gemma4",
+                "auto_start": False,
+            },
         )
         run_id = created.json()["id"]
         fetched = client.get(f"/runs/{run_id}")
@@ -67,7 +72,7 @@ def test_create_and_get_run(tmp_path: Path) -> None:
 
 def test_cancel_run(tmp_path: Path) -> None:
     with make_client(tmp_path) as client:
-        created = client.post("/runs", json={"task": "Cancelable task"})
+        created = client.post("/runs", json={"task": "Cancelable task", "auto_start": False})
         run_id = created.json()["id"]
         cancelled = client.post(
             f"/runs/{run_id}/cancel",
@@ -89,7 +94,7 @@ def test_missing_run_returns_404(tmp_path: Path) -> None:
 
 def test_run_events_and_artifacts_start_empty(tmp_path: Path) -> None:
     with make_client(tmp_path) as client:
-        created = client.post("/runs", json={"task": "Inspect page"})
+        created = client.post("/runs", json={"task": "Inspect page", "auto_start": False})
         run_id = created.json()["id"]
         events = client.get(f"/runs/{run_id}/events")
         artifacts = client.get(f"/runs/{run_id}/artifacts")
@@ -105,10 +110,32 @@ def test_run_events_and_artifacts_start_empty(tmp_path: Path) -> None:
 
 def test_websocket_event_stub_connects(tmp_path: Path) -> None:
     with make_client(tmp_path) as client:
-        created = client.post("/runs", json={"task": "Stream events"})
+        created = client.post("/runs", json={"task": "Stream events", "auto_start": False})
         run_id = created.json()["id"]
         with client.websocket_connect(f"/runs/{run_id}/events/ws") as websocket:
             message = websocket.receive_json()
 
     assert message["type"] == "connection.ready"
     assert message["run_id"] == run_id
+
+
+def test_create_run_auto_starts_workflow(tmp_path: Path) -> None:
+    with make_client(tmp_path) as client:
+        created = client.post("/runs", json={"task": "Autonomous echo task"})
+        run_id = created.json()["id"]
+        fetched = client.get(f"/runs/{run_id}")
+        for _ in range(10):
+            if fetched.json()["status"] == "completed":
+                break
+            sleep(0.05)
+            fetched = client.get(f"/runs/{run_id}")
+        steps = client.get(f"/runs/{run_id}/steps")
+        events = client.get(f"/runs/{run_id}/events")
+
+    assert created.status_code == 201
+    assert fetched.json()["status"] == "completed"
+    assert len(steps.json()) == 1
+    event_types = [event["type"] for event in events.json()]
+    assert "browser.action" in event_types
+    assert "browser.observation" in event_types
+    assert "run.completed" in event_types

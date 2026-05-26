@@ -26,6 +26,18 @@ The first implementation checkpoint defines the stable contracts that later phas
 - agent plan and reflection contracts
 - typed tool interface
 
+## Phase 2 Browser Controller
+
+The browser controller checkpoint adds:
+
+- Playwright session lifecycle
+- isolated browser contexts per run
+- typed browser actions
+- browser observations
+- screenshot path management
+- structured retryable failures
+- browser controller contract tests
+
 ## Local Setup
 
 ```powershell

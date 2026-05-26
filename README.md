@@ -50,6 +50,18 @@ The agent loop checkpoint adds:
 - lifecycle event recording
 - tests for complete, retry, and failure paths
 
+## Phase 4 Memory System
+
+The memory checkpoint adds:
+
+- async database engine and session helpers
+- SQLite table initialization helper
+- long-term memory repository
+- run summary persistence helper
+- type/source/confidence filtering
+- basic text retrieval policy
+- tests for create, filter, search, and delete behavior
+
 ## Local Setup
 
 ```powershell

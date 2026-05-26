@@ -1,3 +1,10 @@
+import sys
+import asyncio
+
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(
+        asyncio.WindowsProactorEventLoopPolicy()
+    )
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path

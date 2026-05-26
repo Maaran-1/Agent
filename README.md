@@ -62,6 +62,18 @@ The memory checkpoint adds:
 - basic text retrieval policy
 - tests for create, filter, search, and delete behavior
 
+## Phase 5 Workflow Engine
+
+The workflow checkpoint adds:
+
+- durable run and step repositories
+- workflow service for lifecycle transitions
+- retry/backoff policy
+- cancellation checks
+- event persistence
+- artifact tracking
+- tests for run, step, retry, event, and artifact behavior
+
 ## Local Setup
 
 ```powershell

@@ -38,6 +38,18 @@ The browser controller checkpoint adds:
 - structured retryable failures
 - browser controller contract tests
 
+## Phase 3 Agent Loop
+
+The agent loop checkpoint adds:
+
+- deterministic planner
+- run context and short-term memory initialization
+- tool registry
+- executor loop
+- retry-aware reflection decisions
+- lifecycle event recording
+- tests for complete, retry, and failure paths
+
 ## Local Setup
 
 ```powershell

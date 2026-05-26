@@ -25,3 +25,21 @@ class AgentTool(ABC):
     async def run(self, context: ToolContext, **kwargs: Any) -> ToolResult:
         """Execute the tool and return a structured result."""
 
+
+class ToolRegistry:
+    """In-memory registry for agent-callable tools."""
+
+    def __init__(self) -> None:
+        self._tools: dict[str, AgentTool] = {}
+
+    def register(self, tool: AgentTool) -> None:
+        self._tools[tool.name] = tool
+
+    def get(self, name: str) -> AgentTool:
+        try:
+            return self._tools[name]
+        except KeyError as exc:
+            raise KeyError(f"Tool is not registered: {name}") from exc
+
+    def names(self) -> list[str]:
+        return sorted(self._tools)

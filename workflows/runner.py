@@ -1,9 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from agents.contracts import ReflectionDecision
+from agents.model_planner import FallbackPlanner, ModelPlanner
+from agents.ollama import OllamaClient, planner_profile
 from agents.planner import AgentPlanner, DeterministicPlanner
 from agents.reflection import ReflectionEngine
 from backend.events import EventType
+from configs.settings import Settings
 from tools.base import ToolContext, ToolRegistry, ToolResult
 from tools.echo import EchoTaskTool
 
@@ -19,18 +22,34 @@ def create_default_tool_registry() -> ToolRegistry:
     return registry
 
 
+def create_default_planner(settings: Settings) -> AgentPlanner:
+    deterministic = DeterministicPlanner()
+    if not settings.use_ollama_planner:
+        return deterministic
+
+    model_planner = ModelPlanner(
+        client=OllamaClient(settings.ollama_base_url),
+        profile=planner_profile(settings.default_planner_model),
+    )
+    return FallbackPlanner(primary=model_planner, fallback=deterministic)
+
+
 class AutonomousWorkflowRunner:
     """Executes stored workflow runs using planner, tools, and reflection."""
 
     def __init__(
         self,
         session_factory: async_sessionmaker[AsyncSession],
+        settings: Settings | None = None,
         planner: AgentPlanner | None = None,
         tools: ToolRegistry | None = None,
         reflection: ReflectionEngine | None = None,
     ) -> None:
         self.session_factory = session_factory
-        self.planner = planner or DeterministicPlanner()
+        self.settings = settings
+        self.planner = planner or (
+            create_default_planner(settings) if settings is not None else DeterministicPlanner()
+        )
         self.tools = tools or create_default_tool_registry()
         self.reflection = reflection or ReflectionEngine()
 
@@ -68,6 +87,7 @@ class AutonomousWorkflowRunner:
                 "objective": plan.objective,
                 "step_count": len(plan.steps),
                 "success_criteria": plan.success_criteria,
+                "planner": self.planner.__class__.__name__,
             },
         )
 

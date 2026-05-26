@@ -82,7 +82,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         await session.commit()
         if request.auto_start:
-            runner = AutonomousWorkflowRunner(app_request.app.state.session_factory)
+            runner = AutonomousWorkflowRunner(
+                app_request.app.state.session_factory,
+                settings=app_request.app.state.settings,
+            )
             background_tasks.add_task(runner.run_existing_run, run.id)
         return RunResponse.model_validate(run, from_attributes=True)
 

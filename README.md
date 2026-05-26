@@ -120,6 +120,25 @@ The autonomous workflow checkpoint adds:
 - persisted action, observation, reflection, and completion events
 - dashboard-created runs start automatically by default
 
+## Phase 9 Ollama Integration
+
+The model planning checkpoint adds:
+
+- async Ollama generate client
+- model profile configuration
+- planner prompt template
+- structured JSON plan parsing
+- model planner with deterministic fallback
+- `ABA_USE_OLLAMA_PLANNER` feature flag
+- tests with mocked Ollama responses
+
+Enable model planning in `.env`:
+
+```text
+ABA_USE_OLLAMA_PLANNER=true
+ABA_DEFAULT_PLANNER_MODEL=gemma4
+```
+
 ## Local Setup
 
 ```powershell

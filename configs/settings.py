@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     default_planner_model: str = "gemma4"
     default_coder_model: str = "qwen2.5-coder"
+    use_ollama_planner: bool = False
     browser_headless: bool = False
     browser_action_timeout_seconds: float = 20.0
     run_timeout_seconds: float = 900.0
@@ -36,4 +37,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

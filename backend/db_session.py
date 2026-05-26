@@ -9,6 +9,7 @@ from .database import Base
 
 
 def create_engine(settings: Settings) -> AsyncEngine:
+    settings.sqlite_path.parent.mkdir(parents=True, exist_ok=True)
     return create_async_engine(settings.database_url, echo=False, future=True)
 
 
@@ -34,4 +35,3 @@ async def session_scope(
         raise
     finally:
         await session.close()
-

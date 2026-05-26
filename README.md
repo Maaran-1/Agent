@@ -13,6 +13,19 @@ Production-grade autonomous browser AI agent platform using FastAPI, Playwright,
 7. Dashboard/frontend
 8. Autonomous workflows
 
+## Phase 1 Core
+
+The first implementation checkpoint defines the stable contracts that later phases build on:
+
+- runtime settings
+- structured logging
+- event schema
+- workflow states
+- database records
+- memory models
+- agent plan and reflection contracts
+- typed tool interface
+
 ## Local Setup
 
 ```powershell
@@ -20,6 +33,12 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 playwright install
+```
+
+Run the focused contract tests:
+
+```powershell
+pytest
 ```
 
 Install local models:

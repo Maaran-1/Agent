@@ -74,6 +74,18 @@ The workflow checkpoint adds:
 - artifact tracking
 - tests for run, step, retry, event, and artifact behavior
 
+## Phase 6 FastAPI Backend
+
+The backend checkpoint adds:
+
+- FastAPI app factory
+- startup database initialization
+- health endpoint
+- run creation, lookup, and cancellation endpoints
+- run steps, events, and artifacts endpoints
+- initial WebSocket event stream stub
+- API contract tests with temporary SQLite storage
+
 ## Local Setup
 
 ```powershell
